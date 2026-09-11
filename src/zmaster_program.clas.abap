@@ -10,8 +10,6 @@ CLASS zmaster_program DEFINITION
   PRIVATE SECTION.
 ENDCLASS.
 
-
-
 CLASS zmaster_program IMPLEMENTATION.
 
 
@@ -368,27 +366,77 @@ CLASS zmaster_program IMPLEMENTATION.
 *-- Call singleton method of the class
     DATA(lo_singleton) = zcl_singleton=>get_instance( ).
 
+**************************************************************************************
+* Day 13 - Upload data to database table
+**************************************************************************************
+
+*-- Create internal table to hold the data
+
+*DATa(lt_student_data) = VALUE ztt_student(
+*( rollno = 1 firstname = 'Sana' lastname = 'Sheikh' birthdate = '20010101' age = 20 emailid = 'sana.sheikh@Gmail.com' )
+*( rollno = 2 firstname = 'Harshada' lastname = 'Koli' birthdate = '20030303' age = 22 emailid = 'Harshada.Koli@Gmail.com' )
+*( rollno = 3 firstname = 'Namita' lastname = 'Gowda' birthdate = '20040404' age = 21 emailid = 'Namita.Gowda@Gmail.com' ) ).
+
+DATa(lt_student_data) = VALUE ztt_student(
+( rollno = 4 firstname = 'Vaibhav' lastname = 'Dandge' birthdate = '20010101' age = 20 emailid = 'Vaibhav.Dandge@Gmail.com' )
+( rollno = 5 firstname = 'Chaitanya' lastname = 'Velankar' birthdate = '20030303' age = 22 emailid = 'Chaitanya.Velankar@Gmail.com' )
+( rollno = 3 firstname = 'Namita' lastname = 'Gowda' birthdate = '20040404' age = 21 emailid = 'Namita.Gowda@Gmail.com' ) ).
+
+*-- Insert data into database table using MODIFY statement
+  MODIFY zDB_student FROM TABLE @lt_student_data.
+  if sy-subrc = 0.
+	out->write( |Data inserted successfully into database table| ).
+  ELSE.
+	out->write( |Error occurred while inserting data into database table| ).
+  endif. 	
+
+    DATA(lt_stud_acad) = VALUE ztt_stud_acad(
+                    ( rollno = 3 semester = 3 subject  = 'C++' marks = 95 )
+                    ( rollno = 3 semester = 4 subject  = 'DE' marks = 70 )
+                    ( rollno = 3 semester = 5 subject  = 'DSA' marks = 65 )
+                    ( rollno = 4 semester = 6 subject  = 'BE' marks = 75 )
+                    ( rollno = 4 semester = 7 subject  = 'IS' marks = 85 )
+                    ( rollno = 4 semester = 8 subject  = 'Elec' marks = 65 ) ).
+    MODIFY zdb_stud_acad FROM TABLE @lt_stud_acad.
+    IF sy-subrc = 0.
+      out->write( 'Records successfully updated to DB table..' ).
+    ELSE.
+      out->write( 'Records Failed to be updated to DB table..' ).
+    ENDIF.
+
+    DATA(lt_stud_fees) = VALUE ztt_stud_fees(
+        ( rollno = 1 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'INR' )
+        ( rollno = 2 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'MYR' )
+        ( rollno = 4 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'JPY' ) ).
+
+    MODIFY zdb_stud_fees FROM TABLE @lt_stud_fees.
+    IF sy-subrc = 0.
+      out->write( 'Database table successfully updated..' ).
+    ELSE.
+      out->write( 'Failed to update the Database table' ).
+    ENDIF.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ENDCLASS.

@@ -1,0 +1,6 @@
+@EndUserText.label: 'ZR_DBSTUDENT'
+@MappingRole: true
+define role ZR_DBSTUDENT {
+  grant select on ZR_DBSTUDENT
+  where TRUE;
+}

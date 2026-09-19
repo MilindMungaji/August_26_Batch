@@ -377,49 +377,109 @@ CLASS zmaster_program IMPLEMENTATION.
 *( rollno = 2 firstname = 'Harshada' lastname = 'Koli' birthdate = '20030303' age = 22 emailid = 'Harshada.Koli@Gmail.com' )
 *( rollno = 3 firstname = 'Namita' lastname = 'Gowda' birthdate = '20040404' age = 21 emailid = 'Namita.Gowda@Gmail.com' ) ).
 
-DATa(lt_student_data) = VALUE ztt_student(
-( rollno = 4 firstname = 'Vaibhav' lastname = 'Dandge' birthdate = '20010101' age = 20 emailid = 'Vaibhav.Dandge@Gmail.com' )
-( rollno = 5 firstname = 'Chaitanya' lastname = 'Velankar' birthdate = '20030303' age = 22 emailid = 'Chaitanya.Velankar@Gmail.com' )
-( rollno = 3 firstname = 'Namita' lastname = 'Gowda' birthdate = '20040404' age = 21 emailid = 'Namita.Gowda@Gmail.com' ) ).
+*DATa(lt_student_data) = VALUE ztt_student(
+*( rollno = 4 firstname = 'Vaibhav' lastname = 'Dandge' birthdate = '20010101' age = 20 emailid = 'Vaibhav.Dandge@Gmail.com' )
+*( rollno = 5 firstname = 'Chaitanya' lastname = 'Velankar' birthdate = '20030303' age = 22 emailid = 'Chaitanya.Velankar@Gmail.com' )
+*( rollno = 3 firstname = 'Namita' lastname = 'Gowda' birthdate = '20040404' age = 21 emailid = 'Namita.Gowda@Gmail.com' ) ).
+*
+**-- Insert data into database table using MODIFY statement
+*  MODIFY zDB_student FROM TABLE @lt_student_data.
+*  if sy-subrc = 0.
+*	out->write( |Data inserted successfully into database table| ).
+*  ELSE.
+*	out->write( |Error occurred while inserting data into database table| ).
+*  endif. 	
+*
+***************************************************************************************
+** Day 14 - Upload data to multiple database tables, SELECT Statement, JOIN statement
+***************************************************************************************
+*    data(lt_stud_acad) = VALUE ztt_stud_acad(
+*                    ( rollno = 3 semester = 3 subject  = 'C++' marks = 95 )
+*                    ( rollno = 3 semester = 4 subject  = 'DE' marks = 70 )
+*                    ( rollno = 3 semester = 5 subject  = 'DSA' marks = 65 )
+*                    ( rollno = 4 semester = 6 subject  = 'BE' marks = 75 )
+*                    ( rollno = 4 semester = 7 subject  = 'IS' marks = 85 )
+*                    ( rollno = 4 semester = 8 subject  = 'Elec' marks = 65 ) ).
+*    MODIFY zdb_stud_acad FROM TABLE @lt_stud_acad.
+*    IF sy-subrc = 0.
+*      out->write( 'Records successfully updated to DB table..' ).
+*    ELSE.
+*      out->write( 'Records Failed to be updated to DB table..' ).
+*    ENDIF.
+*
+*    DATA(lt_stud_fees) = VALUE ztt_stud_fees(
+*        ( rollno = 1 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'INR' )
+*        ( rollno = 2 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'MYR' )
+*        ( rollno = 4 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'JPY' ) ).
+*
+*    MODIFY zdb_stud_fees FROM TABLE @lt_stud_fees.
+*    IF sy-subrc = 0.
+*      out->write( 'Database table successfully updated..' ).
+*    ELSE.
+*      out->write( 'Failed to update the Database table' ).
+*    ENDIF.
 
-*-- Insert data into database table using MODIFY statement
-  MODIFY zDB_student FROM TABLE @lt_student_data.
-  if sy-subrc = 0.
-	out->write( |Data inserted successfully into database table| ).
-  ELSE.
-	out->write( |Error occurred while inserting data into database table| ).
-  endif. 	
+*-- Select statements
+*select *
+*from zdb_student
+*WHERE rollno = 1
+*into table @data(lt_students1).             "@ = Escape Operator to avoid SQL Injection
+*if sy-subrc = 0.
+*  out->write( lt_students1 ).
+*ENDIF.
 
-    DATA(lt_stud_acad) = VALUE ztt_stud_acad(
-                    ( rollno = 3 semester = 3 subject  = 'C++' marks = 95 )
-                    ( rollno = 3 semester = 4 subject  = 'DE' marks = 70 )
-                    ( rollno = 3 semester = 5 subject  = 'DSA' marks = 65 )
-                    ( rollno = 4 semester = 6 subject  = 'BE' marks = 75 )
-                    ( rollno = 4 semester = 7 subject  = 'IS' marks = 85 )
-                    ( rollno = 4 semester = 8 subject  = 'Elec' marks = 65 ) ).
-    MODIFY zdb_stud_acad FROM TABLE @lt_stud_acad.
-    IF sy-subrc = 0.
-      out->write( 'Records successfully updated to DB table..' ).
-    ELSE.
-      out->write( 'Records Failed to be updated to DB table..' ).
-    ENDIF.
+*SELECT SINGLE *
+*from zdb_student
+*into @data(lwa_student1).
+*if sy-subrc = 0.
+*  out->write( lwa_student1 ).
+*ENDIF.
 
-    DATA(lt_stud_fees) = VALUE ztt_stud_fees(
-        ( rollno = 1 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'INR' )
-        ( rollno = 2 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'MYR' )
-        ( rollno = 4 feesyear1 = 1000 feesyear2 = 2000 feesyear3 = 3000 feesyear4 = 4000 currency = 'JPY' ) ).
+*SELECT *
+*from zdb_student
+*into @data(lwa_student1)
+*UP TO 1 ROWS.
+*if sy-subrc = 0.
+*  out->write( lwa_student1 ).
+*ENDIF.
 
-    MODIFY zdb_stud_fees FROM TABLE @lt_stud_fees.
-    IF sy-subrc = 0.
-      out->write( 'Database table successfully updated..' ).
-    ELSE.
-      out->write( 'Failed to update the Database table' ).
-    ENDIF.
+*-- JOIN statement
+*-- INNER JOIN
+*select *
+*from zdb_student as Stud
+*inner join zdb_stud_fees as Fees
+*on Stud~rollno = Fees~rollno
+*into table @data(lt_stud_fees).
+*if sy-subrc = 0.
+*  out->write( lt_stud_fees ).
+*ENDIF.
 
+*-- LEFT OUTER JOIN
+*select *
+*from zdb_student as Stud
+*left OUTER join zdb_stud_fees as Fees
+*on Stud~rollno = Fees~rollno
+*into table @data(lt_left_outer).
+*if sy-subrc = 0.
+*  out->write( lt_left_outer ).
+*ENDIF.
 
+**-- RIGHT OUTER JOIN
+select *
+from zdb_student as Stud
+RIGHT OUTER join zdb_stud_fees as Fees
+on Stud~rollno = Fees~rollno
+into table @data(lt_right_outer).
+if sy-subrc = 0.
+  out->write( lt_right_outer ).
+ENDIF.
 
+*-- Types of Internal Tables
 
-
+DATA : lt_standard TYPE TABLE OF ztt_student,
+	  lt_sorted   TYPE SORTED TABLE OF zdb_student WITH UNIQUE KEY rollno,
+	  lt_hashed   TYPE HASHED TABLE OF zdb_student WITH UNIQUE KEY rollno.
+	
 
 
 

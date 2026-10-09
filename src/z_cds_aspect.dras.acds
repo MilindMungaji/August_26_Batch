@@ -1,0 +1,7 @@
+@EndUserText.label: 'CDS Aspect'
+define aspect z_cds_aspect {
+  lastchanged        : abp_locinst_lastchange_tstmpl;
+  createdby          : abp_creation_user;
+  changedby          : abp_lastchange_user;
+  
+}

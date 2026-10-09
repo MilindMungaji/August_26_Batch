@@ -1,0 +1,89 @@
+@Metadata.layer: #CORE
+@UI: {
+    headerInfo: {
+        typeName: 'Student',
+        typeNamePlural: 'Students',
+        title: {
+            type: #STANDARD,
+            value: 'Fullname'
+        }
+    }
+}
+
+annotate entity zc_student with
+{
+  @UI.facet: [{
+
+        id: 'facetstudent',
+        purpose: #STANDARD,
+        position: 10,
+        label: 'Student Info',
+        type: #IDENTIFICATION_REFERENCE
+    },
+    {
+
+        id: 'facetstudfees',
+        purpose: #STANDARD,
+        position: 20,
+        label: 'Student Fees Info',
+        type: #IDENTIFICATION_REFERENCE,
+        targetElement: '_Fees'
+    },
+    {
+
+        id: 'facetstudacad',
+        purpose: #STANDARD,
+        position: 30,
+        label: 'Student Academy Info',
+        type: #LINEITEM_REFERENCE,
+        targetElement: '_Acad'
+    }
+
+    ]
+
+//  @UI.identification: [{ position: 5 }]
+//  
+//  Rollnointernal;
+  
+  @UI.selectionField: [{ position: 10 }]
+  @UI.lineItem: [{ position: 10 , type: #FOR_ACTION, label: 'Update Birthdate', dataAction: 'a_updateBirthdate' }]
+  @UI.identification: [{ position: 10 }]
+  
+  Rollno;
+  @UI.selectionField: [{ position: 20 }]
+  @UI.lineItem: [{ position: 20 }]
+  @UI.identification: [{ position: 20 }]
+  @Consumption.valueHelpDefinition: [{
+
+      entity: {
+          name: 'ZCDS_DOMAIN_F4',
+          element: 'value_low'
+      },
+      distinctValues: true,
+      useForValidation: true
+      
+  }]
+  Dept;
+  @UI.selectionField: [{ position: 30 }]
+  @UI.lineItem: [{ position: 30 }]
+  @UI.identification: [{ position: 30 }]
+  @EndUserText.label: 'First Name'
+  Firstname;
+  @UI.lineItem: [{ position: 40 }]
+  @UI.identification: [{ position: 40 }]
+  @EndUserText.label: 'Last Name'
+  Lastname;
+  @UI.lineItem: [{ position: 50 }]
+  @UI.identification: [{ position: 50 }]
+  @EndUserText.label: 'Birthdate'
+  Birthdate;
+  @UI.lineItem: [{ position: 60 }]
+  @UI.identification: [{ position: 60 }]
+  @EndUserText.label: 'Email ID'
+  Emailid;
+  @UI.identification: [{ position: 70 }]
+  @UI.lineItem: [{ position: 70 }]
+  @EndUserText.label: 'Age'
+  Age;
+
+}

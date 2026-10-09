@@ -1,0 +1,35 @@
+@Metadata.layer: #CORE
+annotate entity zc_stud_fees
+    with 
+{
+
+  @UI.facet: [{
+
+  id: 'facetstudfees',
+  purpose: #STANDARD,
+  label: 'Student Fees Details',
+  type: #IDENTIFICATION_REFERENCE,
+  targetQualifier: 'facetstudfees',
+  parentId: 'facetstudent'
+  }]
+
+  @UI.lineItem: [{ position: 51 }]
+  @UI.identification: [{ position: 51 }]
+  @EndUserText.label: 'Fees Year 1'
+  Feesyear1;
+  @UI.lineItem: [{ position: 52 }]
+  @UI.identification: [{ position: 52 }]
+  @EndUserText.label: 'Fees Year 2'
+  Feesyear2;
+  @UI.lineItem: [{ position: 53 }]
+  @UI.identification: [{ position: 53 }]
+  @EndUserText.label: 'Fees Year 3'
+  Feesyear3;
+  @UI.lineItem: [{ position: 54 }]
+  @UI.identification: [{ position: 54 }]
+  @EndUserText.label: 'Fees Year 4'
+  Feesyear4;
+  @UI.lineItem: [{ position: 50 }]
+  Currency;
+
+}

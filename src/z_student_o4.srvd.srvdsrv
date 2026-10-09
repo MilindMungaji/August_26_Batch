@@ -1,0 +1,6 @@
+@EndUserText.label: 'Odata V4 Service for Student'
+define service Z_student_O4 {
+  expose zc_student;
+  expose zc_stud_acad;
+  expose zc_stud_fees;
+}

@@ -1,0 +1,76 @@
+managed implementation in class zbp_i_student unique;
+strict ( 2 );
+with draft;
+
+define behavior for zi_student alias Student
+persistent table zdb_student
+draft table zdb_student_d
+lock master
+total etag  Lastchanged
+authorization master ( instance )
+//early numbering
+late numbering
+//etag master <field_name>
+{
+  create ( authorization : global );
+  update;
+  delete;
+  //field ( readonly , numbering : managed ) Rollnointernal;
+  field ( readonly  ) Rollno;
+  field ( readonly ) Age;
+  association _Acad { create; }
+  association _Fees { create; }
+
+  //Action to update the birthdate
+  //action a_updateBirthdate parameter zabs_birthdate result [1] $self;
+
+  //Dynamic feature control - To enable/disable the actions  based on conditions
+  action( features : instance ) a_updateBirthdate parameter zabs_birthdate result [1] $self;
+
+  //Validation - To check if the birthdate is not a future date
+  validation validateBirthdate on save { field Birthdate; }
+
+  //Determination - To Determine/Calculate Age based on Birthdate
+  determination DetermineAge on modify { field Birthdate; }
+
+  //Side Effect - To reload the new calculated Age field based on birthdate once the User has entered the birthdate and he press TAB button
+  side effects { field Birthdate affects field Age; }
+
+   // Draft Actions/Features
+
+   draft action Activate;
+   draft action Discard;
+   draft action Edit;
+   draft action Resume;
+   draft determine action Prepare;
+}
+
+define behavior for zi_academy alias Academy
+persistent table zdb_stud_acad
+draft table zdb_stud_acad_d
+lock dependent by _Stud
+authorization dependent by _Stud
+late numbering
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) Rollnointernal, Rollno, Semester, Subject;
+  association _Stud;
+
+
+}
+
+define behavior for zi_fees alias Fees
+persistent table zdb_stud_fees
+draft table zdb_stud_fees_d
+lock dependent by _Stud
+authorization dependent by _Stud
+late numbering
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) Rollnointernal, Rollno;
+  association _Stud;
+}

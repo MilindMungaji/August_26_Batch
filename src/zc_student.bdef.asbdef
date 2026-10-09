@@ -1,0 +1,40 @@
+projection;
+strict ( 2 );
+use draft;
+use side effects;
+
+define behavior for zc_student alias Student
+{
+  use create;
+  use update;
+  use delete;
+
+  use association _Acad { create; }
+  use association _Fees { create; }
+
+  use action a_updateBirthdate;
+
+  use action Edit;
+  use action Activate;
+  use action Discard;
+  use action Prepare;
+  use action Resume;
+
+  side effects { field Birthdate affects field Age; }
+}
+
+define behavior for zc_stud_acad alias Academy
+{
+  use update;
+  use delete;
+
+  use association _Stud;
+}
+
+define behavior for zc_stud_fees alias Fees
+{
+  use update;
+  use delete;
+
+  use association _Stud;
+}

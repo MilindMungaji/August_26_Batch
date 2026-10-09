@@ -344,7 +344,7 @@ CLASS zmaster_program IMPLEMENTATION.
 *-- Call Interface Method of the Child class
 
     DATA(lo_child) = NEW zcl_inheritance_cl( ).
-        " ~ = TIlde operator is used to call the method of the interface implemented by the class
+    " ~ = TIlde operator is used to call the method of the interface implemented by the class
 *    lo_child->zif_calculator2~calculate_percentage(
 *                                                      EXPORTING
 *                                                        iv_value1 = 50
@@ -465,28 +465,187 @@ CLASS zmaster_program IMPLEMENTATION.
 *ENDIF.
 
 **-- RIGHT OUTER JOIN
-select *
-from zdb_student as Stud
-RIGHT OUTER join zdb_stud_fees as Fees
-on Stud~rollno = Fees~rollno
-into table @data(lt_right_outer).
-if sy-subrc = 0.
-  out->write( lt_right_outer ).
-ENDIF.
+*select *
+*from zdb_student as Stud
+*RIGHT OUTER join zdb_stud_fees as Fees
+*on Stud~rollno = Fees~rollno
+*into table @data(lt_right_outer).
+*if sy-subrc = 0.
+*  out->write( lt_right_outer ).
+*ENDIF.
+*
+**-- Types of Internal Tables
+*
+*DATA : lt_standard TYPE TABLE OF ztt_student,
+*	  lt_sorted   TYPE SORTED TABLE OF zdb_student WITH UNIQUE KEY rollno,
+*	  lt_hashed   TYPE HASHED TABLE OF zdb_student WITH UNIQUE KEY rollno.
+    	
+***************************************************************************************
+** Day 18 - Upload data to CDS Table Entities
+***************************************************************************************
 
-*-- Types of Internal Tables
-
-DATA : lt_standard TYPE TABLE OF ztt_student,
-	  lt_sorted   TYPE SORTED TABLE OF zdb_student WITH UNIQUE KEY rollno,
-	  lt_hashed   TYPE HASHED TABLE OF zdb_student WITH UNIQUE KEY rollno.
-	
-
-
+*data(lwa_cds_tab_ent) = value z_table_entities( rollno = 1 dept = 'IT'  ).
+*
+*MODIFY z_table_entities FROM @lwa_cds_tab_ent.
+*if sy-subrc = 0.
+*  out->write( lwa_cds_tab_ent ).
+*ENDIF.
 
 
+*-> Write data to Hierarchical Table
 
+    DATA : it_hierarchical TYPE TABLE OF zdb_hierarchy.
 
+    it_hierarchical = VALUE #( ( sales_org_id = 'SO_MUM' name = 'Mumbai' revenue = '100000' currency = 'INR' parent_sales_org = 'SO_MAH' )
+                               ( sales_org_id = 'SO_NAV' name = 'Navi Mumbai' revenue = '50000' currency = 'INR' parent_sales_org = 'SO_MUM' )
+                               ( sales_org_id = 'SO_THA' name = 'Thane' revenue = '20000' currency = 'INR' parent_sales_org = 'SO_MUM' )
+                               ( sales_org_id = 'SO_PUN' name = 'Pune' revenue = '500000' currency = 'INR' parent_sales_org = 'SO_MAH' )
+                               ( sales_org_id = 'SO_PIM' name = 'Pimpri' revenue = '400000' currency = 'INR' parent_sales_org = 'SO_PUN' )
+                               ( sales_org_id = 'SO_LON' name = 'Lonavala' revenue = '100000' currency = 'INR' parent_sales_org = 'SO_PUN' )
+                               ( sales_org_id = 'SO_MAH' name = 'Maharashtra' revenue = '100000' currency = 'INR' parent_sales_org = '' )
+                               ( sales_org_id = 'SO_MAH' name = 'Maharashtra' revenue = '100000' currency = 'INR' parent_sales_org = '' ) ).
 
+    MODIFY zdb_hierarchy FROM TABLE @it_hierarchical.
+
+*************************************************************************************
+**    DAY 21 - SELECT Statement on CDS
+**             EML - EML Entity Manipulation Language
+*************************************************************************************
+*
+* ---------- Select on CDS ---------------
+*-> Fetch data using CDS Entity
+*    select *
+*    from Zc_Student
+*    into TABLE @data(it_student).
+*    if sy-subrc = 0.
+*        out->write( it_student ).
+*    endif.
+
+*-> Fetch data using CDS Association/composition entity
+*    select *
+*    from Zi_Student\_Fees1 as Fees
+*    into TABLE @data(it_fees).
+*    if sy-subrc = 0.
+*        out->write( it_fees ).
+*    endif.
+
+*-> Fetch data using CDS root Entity & composition entity
+*    select *
+*    from Zc_Student
+*    left OUTER join Zc_Student\_Fees as Fees
+*    ON Zc_Student~Rollno = Fees~Rollno
+*    into TABLE @data(it_stud_fees).
+*    if sy-subrc = 0.
+*        out->write( it_stud_fees ).
+*    endif.
+*
+**-> Fetch data using CDS Entity with parameters
+*    select *
+*    from Zi_stud_fees( p_currency = 'INR' )
+*    into TABLE @data(it_fees).
+*    if sy-subrc = 0.
+*        out->write( it_fees ). "X"
+*    endif.
+
+*    DATA : lt_create TYPE TABLE FOR CREATE zc_student.  "Internal table to create a new entity
+*
+*    lt_create = VALUE #( ( rollno = 8 firstname = 'Deepika' lastname = 'Singh' Dept = 'IT' Birthdate = '20000101'
+*                      %control = VALUE #( rollno = if_abap_behv=>mk-on
+*                                        firstname = if_abap_behv=>mk-on
+*                                        lastname = if_abap_behv=>mk-on
+*                                        Dept = if_abap_behv=>mk-on
+*                                        Birthdate = if_abap_behv=>mk-off ) ) ).
+*
+**-- EML Statement to Create a new Entity
+*
+*    MODIFY ENTITIES OF zc_student
+*"    IN LOCAL MODE
+*    ENTITY student
+*    CREATE FROM lt_create
+*    REPORTED DATA(lt_reported_create)
+*    MAPPED DATA(lt_mapped_create)
+*    FAILED DATA(lt_failed_create).
+*
+*    IF lt_failed_create IS INITIAL.
+*      COMMIT ENTITIES.
+*      out->write( 'Entity Created Successfully' ).
+*    ENDIF.
+
+*-- EML Statement to Update  Entity
+*    MODIFY ENTITIES OF zc_student
+*"    IN LOCAL MODE
+*    ENTITY student
+*    UPDATE FROM VALUE #( ( rollno = 8 firstname = 'Deepika' lastname = 'Padukone' Dept = 'CS' Birthdate = '20050101'
+*                        %control = VALUE #( Lastname = if_abap_behv=>mk-on
+*                                                Dept = if_abap_behv=>mk-on
+*                                           Birthdate = if_abap_behv=>mk-on ) ) )
+*    REPORTED DATA(lt_reported_create1)
+*    MAPPED DATA(lt_mapped_create1)
+*    FAILED DATA(lt_failed_create1).
+*
+*    IF lt_failed_create1 IS INITIAL.
+*      COMMIT ENTITIES.
+*      out->write( 'Entity Updated Successfully' ).
+*    ENDIF.
+*
+**-- EML Statement to Delete Entity
+*    MODIFY ENTITIES OF zc_student
+*    ENTITY student
+*    DELETE FROM VALUE #( ( rollno = 8  ) )
+*    REPORTED DATA(lt_reported_create2)
+*    MAPPED DATA(lt_mapped_create2)
+*    FAILED DATA(lt_failed_create2).
+*
+*    IF lt_failed_create2 IS INITIAL.
+*      COMMIT ENTITIES.
+*      out->write( 'Entity Deleted Successfully' ).
+*    ENDIF.
+*
+**-- EML Statement to Read Entity
+*    READ ENTITIES OF zc_student
+*    ENTITY Student
+*    ALL FIELDS WITH VALUE #( ( Rollno = 2 ) )
+*    RESULT DATA(lt_result)
+*    FAILED DATA(lt_failed).
+*
+*    IF lt_result IS NOT INITIAL.
+*      out->write( lt_result ).
+*    ENDIF.
+
+*************************************************************************************
+**    DAY 24 - Create Number Range Interval
+*************************************************************************************
+
+    DATA: lt_intervals TYPE cl_numberrange_intervals=>nr_interval,
+          ls_interval  LIKE LINE OF lt_intervals.
+
+    " Set up interval '01'
+    ls_interval-nrrangenr = '01'.       " Must match your RAP code
+    ls_interval-fromnumber = '00000001'. " Adjust length to fit your domain
+    ls_interval-tonumber   = '99999999'.
+    ls_interval-procind    = 'I'.        " 'I' stands for Insert / Create
+    APPEND ls_interval TO lt_intervals.
+
+    TRY.
+        " Call Cloud API to generate interval configuration
+        cl_numberrange_intervals=>create(
+          EXPORTING
+            interval  = lt_intervals
+            object    = 'ZROLLNO_NR'     " Name of your ADT object
+          IMPORTING
+            error     = DATA(lv_error)
+            error_inf = DATA(ls_error_info)
+        ).
+
+        IF lv_error IS INITIAL.
+          out->write( 'Success: Number range interval 01 created successfully!' ).
+        ELSE.
+          out->write( |Error occurred. Code: { ls_error_info-msgnr }| ).
+        ENDIF.
+
+      CATCH cx_number_ranges INTO DATA(lx_error).
+        out->write( lx_error->get_text( ) ).
+    ENDTRY.
 
 
 

@@ -1,0 +1,4 @@
+@EndUserText.label: 'Hie'
+define service Zsd_hierarchy {
+  expose zc_hierarchy;
+}

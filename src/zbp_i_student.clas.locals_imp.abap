@@ -54,9 +54,9 @@ CLASS lhc_Student DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS get_instance_features FOR INSTANCE FEATURES
       keys REQUEST requested_features FOR Student RESULT result.
     METHODS validatebirthdate FOR VALIDATE ON SAVE
-      keys FOR student~validatebirthdate.
+       keys FOR student~validatebirthdate.
     METHODS determineage FOR DETERMINE ON MODIFY
-      keys FOR student~determineage.
+       keys FOR student~determineage.
     "METHODS earlynumbering_create.
 *    METHODS earlynumbering_create FOR NUMBERING
 *       entities FOR CREATE Student.
@@ -66,6 +66,24 @@ ENDCLASS.
 CLASS lhc_Student IMPLEMENTATION.
 
   METHOD get_instance_authorizations.
+
+    IF requested_authorizations-%action-Edit = if_abap_behv=>mk-on.
+
+      "Only IT students should have the authorization to EDIT the Record
+      READ ENTITIES OF zc_student
+       ENTITY student
+       FIELDS ( Dept )
+       WITH CORRESPONDING #( keys )
+       RESULT DATA(lt_result).
+      IF lt_result[ 1 ]-Dept NE 'IT'.
+        APPEND VALUE #( %key = lt_result[ 1 ]-%key
+                        %msg = new_message_with_text( severity = if_abap_behv_message=>severity-error
+                                                      text     = 'NON IT Student is not eligible to update the Record'
+                                                     ) )  TO reported-student.
+        APPEND VALUE #( %key = lt_result[ 1 ]-%key )  TO failed-student.
+      ENDIF.
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD get_global_authorizations.
@@ -121,22 +139,22 @@ CLASS lhc_Student IMPLEMENTATION.
       MAPPED DATA(lt_mapped)
       REPORTED DATA(lt_reported).
     IF lt_failed IS INITIAL.
-        data(lv_msg) = | Student | && keys[ 1 ]-Rollno && | Birthdate updated successfully |.
+      DATA(lv_msg) = | Student | && keys[ 1 ]-Rollno && | Birthdate updated successfully |.
 
-        APPEND INITIAL LINE TO reported-student ASSIGNING FIELD-SYMBOL(<fs_student>).
-        <fs_student>-%msg = new_message_with_text(
-                              severity = if_abap_behv_message=>severity-success
-                              text     = lv_msg
-                            ).
-    else.
+      APPEND INITIAL LINE TO reported-student ASSIGNING FIELD-SYMBOL(<fs_student>).
+      <fs_student>-%msg = new_message_with_text(
+                            severity = if_abap_behv_message=>severity-success
+                            text     = lv_msg
+                          ).
+    ELSE.
 
-        lv_msg = | Student | && keys[ 1 ]-Rollno && | update FAILED |.
+      lv_msg = | Student | && keys[ 1 ]-Rollno && | update FAILED |.
 
-        APPEND INITIAL LINE TO reported-student ASSIGNING <fs_student>.
-        <fs_student>-%msg = new_message_with_text(
-                              severity = if_abap_behv_message=>severity-success
-                              text     = lv_msg
-                            ).
+      APPEND INITIAL LINE TO reported-student ASSIGNING <fs_student>.
+      <fs_student>-%msg = new_message_with_text(
+                            severity = if_abap_behv_message=>severity-success
+                            text     = lv_msg
+                          ).
 
     ENDIF.
 
@@ -144,11 +162,11 @@ CLASS lhc_Student IMPLEMENTATION.
 
   METHOD get_instance_features.
 
-  READ ENTITIES OF zc_student
-    ENTITY student
-    FIELDS ( Dept )
-    WITH CORRESPONDING #( keys )
-    RESULT DATA(lt_result).
+    READ ENTITIES OF zc_student
+      ENTITY student
+      FIELDS ( Dept )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_result).
 
     result = VALUE #( FOR ls_result IN lt_result ( %key-rollno = ls_result-rollno
                                                    %features-%action-a_updateBirthdate = COND #( WHEN ls_result-Dept = 'IT'
@@ -159,11 +177,11 @@ CLASS lhc_Student IMPLEMENTATION.
 
   METHOD validateBirthdate.
 
-  READ ENTITIES OF zc_student
-  ENTITY student
-  FIELDS ( birthdate )
-  WITH CORRESPONDING #( keys )
-  RESULT DATA(lt_result).
+    READ ENTITIES OF zc_student
+    ENTITY student
+    FIELDS ( birthdate )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_result).
 
     DATA(ls_result) = lt_result[ 1 ].
 
@@ -174,7 +192,7 @@ CLASS lhc_Student IMPLEMENTATION.
                               severity = if_abap_behv_message=>severity-error
                               text     = 'Birth date cannot be a future date'
                             ).
-    APPEND INITIAL LINE TO failed-student ASSIGNING FIELD-SYMBOL(<lfs_failed>).
+      APPEND INITIAL LINE TO failed-student ASSIGNING FIELD-SYMBOL(<lfs_failed>).
       <lfs_failed>-%key = lt_result[ 1 ]-%key.
 
     ENDIF.
@@ -183,11 +201,11 @@ CLASS lhc_Student IMPLEMENTATION.
 
   METHOD DetermineAge.
 
-  READ ENTITIES OF zc_student
-        ENTITY student
-        FIELDS ( birthdate )
-        WITH CORRESPONDING #( DEEP keys )
-        RESULT DATA(lt_result).
+    READ ENTITIES OF zc_student
+          ENTITY student
+          FIELDS ( birthdate )
+          WITH CORRESPONDING #( DEEP keys )
+          RESULT DATA(lt_result).
 
     DATA(lv_age) = ( cl_abap_context_info=>get_system_date( ) - lt_result[ 1 ]-birthdate ) / 365.
 
